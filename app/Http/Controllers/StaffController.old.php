@@ -1,0 +1,513 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Expenses;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Auth;
+use DB;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use Storage;
+use File;
+use Repsonse;
+use function Psy\sh;
+
+class StaffController extends Controller
+{
+    // Staff List Page
+    public function list()
+    {
+
+        $pageConfigs = ['pageHeader' => false];
+
+        $users = DB::select("SELECT * FROM users");
+
+        return view('/users/staff/list', ['pageConfigs' => $pageConfigs, 'users' => $users]);
+    }
+
+    public function adduser(Request $request)
+    {
+        $validator = validator()->make(request()->all(), [
+            'user-first' => 'required',
+            'user-last' => 'required',
+            'user-email' => 'required',
+            'user-password' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            toastr()->error('Please fix your inputs !');
+            return redirect()->back();
+        } else {
+            if (User::where('email', $request['user-email'])->exists()) {
+                toastr()->error('This email already taken, try with diffrent email !');
+                return redirect()->back();
+            }
+            if (currentTeam()->users->count() < currentTeam()->plan->teams_limit) {
+                $user = User::create([
+                    'user_id' => Auth::user()->id,
+                    'role_id' => 2,
+                    'status' => 'active',
+                    'name' => $request['user-first'] . ' ' . $request['user-last'],
+                    'firstname' => $request['user-first'],
+                    'lastname' => $request['user-last'],
+                    'email' => $request['user-email'],
+                    'country' => '9-small.png',
+                    'password' => Hash::make($request['user-password'])
+                ]);
+                $user->teams()->attach(currentTeam());
+                $user->switchTeam(currentTeam());
+                toastr()->success('User has been added as staff');
+                return redirect()->back();
+            } else {
+                toastr()->error('You are not allow to add more staff, please upgrade your plan !');
+                return redirect()->back();
+            }
+            //TeamMemberAdded::dispatch(currentTeam(), $user);
+
+            // DB::table('team_invitations')->insert(['team_id' => $request['user-team'], 'email' => $request['user-email'], 'role' => 'editor']);
+            // DB::table('team_user')->insert(['team_id' => $request['user-team'], 'user_id' => $users, 'role' => 'edit']);
+            // $pageConfigs = ['pageHeader' => false];
+            // return view('/users/staff/list', ['pageConfigs' => $pageConfigs]);
+        }
+    }
+
+    public function datauserlist()
+    {
+        $users = DB::table('users')
+                ->leftjoin('teams', 'users.current_team_id', '=', 'teams.id')
+                ->leftjoin('staff', 'users.id', '=', 'staff.user_id')
+                ->leftjoin('contract_type', 'staff.contract_type', '=', 'contract_type.id')
+                ->where('users.user_id' , '=', Auth::id())
+                ->where('users.role_id' , '=', 2)
+                ->select('users.*', 'teams.name as team', 'staff.is_contact', 'staff.updated_at as active_date', 'contract_type.name as contract_type_name')
+                ->get()->toArray();
+
+        return response()->json(['data' => $users]);
+    }
+
+
+    // Staff Account Page
+    public function view_account($id)
+    {
+        $users = DB::select("SELECT * FROM users WHERE id = $id");
+
+        $staff = DB::table('staff')
+                    ->leftJoin('contract_type', 'staff.contract_type', '=', 'contract_type.id')
+                    ->where('staff.user_id', '=', $id)
+                    ->select('staff.*', 'contract_type.name as contract_name')
+                    ->get();
+
+        $teams = DB::select("SELECT * FROM team_user tu Inner join teams te on team_id = te.id WHERE tu.user_id = $id");
+
+        $pageConfigs = ['pageHeader' => false];
+        return view('/users/staff/view-account', ['pageConfigs' => $pageConfigs, 'users' => $users, 'staff' => $staff, 'teams' => $teams]);
+    }
+
+    public function add_account(Request $request)
+    {
+        $staff = DB::select("SELECT * FROM staff WHERE user_id = '" . $request['id'] . "'");
+        if ($request['option'] == 0) {
+            if ($staff) {
+                DB::table('staff')->where('user_id', $request['id'])->update(['gender' => $request['staff-gender']]);
+            } else {
+                DB::table('staff')->insert(['user_id' => $request['id'], 'gender' => $request['staff-gender']]);
+            }
+            DB::table('users')->where('id', $request['id'])->update([
+                'username' => $request['staff-username'],
+                'firstname' => $request['staff-firstname'], 'lastname' => $request['staff-lastname'],
+                'email' => $request['staff-email'], 'phone' => $request['staff-phone']
+            ]);
+        } else {
+            if ($staff) {
+                DB::table('staff')->where('user_id', $request['id'])->update([
+                    'placebirth' => $request['info-placebirth'],
+                    'nationality' => $request['info-nationality'],
+                    'nin' => $request['info-nin'],   'address' => $request['info-address']
+                ]);
+            } else {
+                DB::table('staff')->insert([
+                    'placebirth' => $request['info-placebirth'], 'nationality' => $request['info-nationality'],
+                    'nin' => $request['info-nin'],   'address' => $request['info-address']
+                ]);
+            }
+            DB::table('users')->where('id', $request['id'])->update([
+                'postcode' => $request['info-postcode'],
+                'city' => $request['info-city'], 'birthday' => $request['info-birthday']
+            ]);
+        }
+        return redirect('staff/' . $request["id"] . '/view/account/');
+    }
+
+
+
+    // Emergency Contact number
+    public function emergency_contact(Request $request)
+    {
+            DB::table('users')->where('id', $request['id'])->update([
+                'pri_name' => $request['pri_name'], 'pri_relationship' => $request['pri_relationship'], 'pri_phone' => $request['pri_phone'],
+                'sec_name' => $request['sec_name'], 'sec_relationship' => $request['sec_relationship'], 'sec_phone' => $request['sec_phone']
+            ]);
+
+        return redirect('staff/' . $request["id"] . '/view/account/');
+    }
+
+    // Bank Information
+    public function bank_information(Request $request)
+    {
+            DB::table('users')->where('id', $request['id'])->update([
+                'bank_name' => $request['bank_name'], 'account_no' => $request['account_no'],
+                'ifsc_code' => $request['ifsc_code'], 'pan_no' => $request['pan_no']
+            ]);
+
+        return redirect('staff/' . $request["id"] . '/view/salary/');
+    }
+
+
+
+
+    public function suspen_account(Request $request)
+    {
+        $activeTime = Carbon::now();
+        $staff = DB::select("SELECT * FROM staff WHERE user_id = '" . $request['id'] . "'");
+        if ($staff) {
+            if ($staff[0]->is_contact == 0) {
+                DB::table('staff')->where('user_id', $request['id'])->update(['is_contact' => 1, 'updated_at' => $activeTime]);
+            } else {
+                DB::table('staff')->where('user_id', $request['id'])->update(['is_contact' => 0]);
+            }
+        } else {
+            DB::table('staff')->insert(['user_id' => $request['id'], 'is_contact' => 1, 'updated_at' => $activeTime]);
+        }
+
+        return response()->json([
+           'message' => 'success'
+        ]);
+    }
+    // Staff Security Page
+    public function view_salary($id)
+    {
+
+        $users = DB::select("SELECT * FROM users WHERE id = $id");
+
+        $staff = DB::table('staff')
+                ->leftJoin('contract_type', 'staff.contract_type', '=', 'contract_type.id')
+                ->leftJoin('location', 'staff.location_id', '=', 'location.id')
+                ->where('staff.user_id', '=', $id)
+                ->select('staff.*', 'contract_type.name as contract_name', 'location.name as location_name', 'location.bonus')
+                ->get();
+
+
+        $teams = DB::select("SELECT * FROM team_user tu Inner join teams te on team_id = te.id WHERE tu.user_id = $id");
+        $contractTypes = DB::select("SELECT * FROM contract_type");
+
+        $userId = $users[0]->user_id;
+
+        $shifts = DB::select("SELECT * FROM shift WHERE user_id = $userId");
+        $locations = DB::select("SELECT * FROM location WHERE user_id = $userId");
+
+        $shift_id = $users[0]->shift_id;
+
+        $shiftName = [];
+        if (isset($shift_id)){
+
+            $staffShift = explode(",", $shift_id);
+
+            foreach ($staffShift as $value){
+                $getShift = null;
+                $getShift = DB::table('shift')->where('id', '=', $value)->select('name')->first();
+
+
+                $shiftName[] = isset($getShift->name) ? $getShift->name : ' ';
+            }
+
+        }
+
+        $shiftAtt = implode(', ', $shiftName);
+
+
+
+
+        $pageConfigs = ['pageHeader' => false];
+        return view('/users/staff/view-salary', [
+            'pageConfigs' => $pageConfigs,
+            'users' => $users,
+            'staff' => $staff,
+            'teams' => $teams,
+            'shifts' => $shifts,
+            'contractTypes' => $contractTypes,
+            'locations' => $locations,
+            'shiftDa' => $shiftAtt
+        ]);
+    }
+
+    public function add_asalary(Request $request)
+    {
+
+        $staff = DB::select("SELECT * FROM staff WHERE user_id = '" . $request['id'] . "'");
+        if ($request['option'] == 0) {
+            if ($staff) {
+                DB::table('staff')->where('user_id', $request['id'])->update([
+                    'contract_type' => $request['wage-contract_type'],
+                    'hiring_date' => $request['wage-hiring_date'],
+                    'location_id' => $request['location_id'],
+                    'position' => $request['position'],
+                ]);
+
+            } else {
+                DB::table('staff')->insert([
+                    'user_id' => $request['id'],
+                    'contract_type' => $request['wage-contract_type'],
+                    'hiring_date' => $request['wage-hiring_date'],
+                    'location_id' => $request['location_id'],
+                    'position' => $request['position'],
+                ]);
+            }
+
+            if (isset($request['shift_id'])){
+                $shiftId = implode(',', $request['shift_id']);
+                DB::table('users')->where('id', '=', $request['id'])->update([
+                    'shift_id' => $shiftId
+                ]);
+            }
+
+
+            if (isset($request['location_id'])) {
+
+                $this->updatedLocationStaff($request);
+            }
+
+        } else {
+            if ($staff) {
+                DB::table('staff')->where('user_id', $request['id'])->update([
+                    'monthly_salary' => $request['salary-monthly_salary'],
+                    'hourly_salary' => $request['salary-hourly_salary'], 'overtime_salary' => $request['salary-overtime_salary'],
+                    'weekly_working_time' => $request['salary-weekly_working_time'], 'daily_breaks_time' => $request['salary-daily_breaks_time'],
+                    'holidays_per_year' => $request['salary-holidays_per_year']
+                ]);
+            } else {
+                DB::table('staff')->insert([
+                    'monthly_salary' => $request['salary-monthly_salary'],
+                    'hourly_salary' => $request['salary-hourly_salary'], 'overtime_salary' => $request['salary-overtime_salary'],
+                    'weekly_working_time' => $request['salary-weekly_working_time'], 'daily_breaks_time' => $request['salary-daily_breaks_time'],
+                    'holidays_per_year' => $request['salary-holidays_per_year']
+                ]);
+            }
+        }
+        return redirect('staff/' . $request["id"] . '/view/salary/');
+    }
+
+
+    // Updated Location Table
+    protected function updatedLocationStaff($request){
+        $locationId = $request['location_id'];
+
+        $staffId = $request['id'];
+        $location = DB::table('location')->where('shift_id', 'LIKE', "%$staffId%")->first();
+
+        if (isset($location)){
+
+            if ($locationId !== $location->id){
+                if (isset($location)){
+                    $staffList = explode(",", $location->shift_id);
+                    array_splice($staffList, array_search($staffId, $staffList), 1);
+
+                    $result = "";
+                    if (count($staffList) > 0){
+                        $result = implode(",", $staffList);
+                    }
+
+                    DB::table('location')->where('id', '=', $location->id)->update([
+                        'shift_id' => $result
+                    ]);
+                }
+
+                $locationData = DB::table('location')->where('id', '=', $locationId)->first();
+
+                $requstId = "";
+                if ($locationData->shift_id !== ""){
+                    $requstId = $locationData->shift_id . ",". $staffId;
+                }else{
+                    $requstId = $staffId;
+                }
+
+                DB::table('location')->where('id', '=', $locationId)->update([
+                    'shift_id' => $requstId
+                ]);
+            }
+        }else{
+            DB::table('location')->where('id', '=', $locationId)->update([
+                'shift_id' => $staffId
+            ]);
+        }
+
+        return $locationId;
+
+    }
+
+
+
+
+    // Staff Documents Page
+    public function view_documents($id)
+    {
+        $users = DB::select("SELECT * FROM users WHERE id = $id");
+        $staff = DB::table('staff')
+                    ->leftJoin('contract_type', 'staff.contract_type', '=', 'contract_type.id')
+                    ->where('staff.user_id', '=', $id)
+                    ->select('staff.*', 'contract_type.name as contract_name')
+                    ->get();
+        $teams = DB::select("SELECT * FROM team_user tu Inner join teams te on team_id = te.id WHERE tu.user_id = $id");
+        $pageConfigs = ['pageHeader' => false];
+        return view('/users/staff/view-documents', ['pageConfigs' => $pageConfigs, 'users' => $users, 'staff' => $staff, 'teams' => $teams]);
+    }
+
+    public function add_documents(Request $request)
+    {
+        $file = $request->file('file');
+        $fileName = $file->getClientOriginalName();
+        Storage::disk('local')->put('public/documents/' . $request['id'] . '/' . $fileName,  \File::get($file));
+        $documet = DB::select("SELECT * FROM documents WHERE user_id = '" . $request['id'] . "' and name_file = '" . $fileName . "'");
+        if (!$documet) {
+            DB::table('documents')->insert(['user_id' => $request['id'], 'name_file' => $fileName, 'date' => now()]);
+        }
+    }
+
+    public function query_documents($id)
+    {
+        $documents = DB::select("SELECT * FROM documents WHERE user_id = $id");
+        $documents = json_encode($documents);
+        $documents =  '{ "data":' . $documents . "}";
+        return $documents;
+    }
+
+    // Staff Connections Page
+    public function view_connections($id)
+    {
+        $pageConfigs = ['pageHeader' => false];
+        $users = DB::select("SELECT * FROM users WHERE id = $id");
+        $staff = DB::table('staff')
+            ->leftJoin('contract_type', 'staff.contract_type', '=', 'contract_type.id')
+            ->where('staff.user_id', '=', $id)
+            ->select('staff.*', 'contract_type.name as contract_name')
+            ->get();
+        $plans = DB::select("SELECT * FROM plans");
+        return view('/users/staff/view-connections', ['pageConfigs' => $pageConfigs, 'user' => $users, 'plans' => $plans, 'staff' => $staff]);
+    }
+
+    // Staff Notifications Page
+    public function view_notifications($id)
+    {
+        $users = DB::select("SELECT * FROM users WHERE id = $id");
+        $staff = DB::table('staff')
+            ->leftJoin('contract_type', 'staff.contract_type', '=', 'contract_type.id')
+            ->where('staff.user_id', '=', $id)
+            ->select('staff.*', 'contract_type.name as contract_name')
+            ->get();
+        $teams = DB::select("SELECT * FROM team_user tu Inner join teams te on team_id = te.id WHERE tu.user_id = $id");
+        $plans = DB::select("SELECT * FROM plans");
+        $pageConfigs = ['pageHeader' => false];
+
+        return view('/users/staff/view-notifications', ['pageConfigs' => $pageConfigs, 'user' => $users, 'staff' => $staff, 'plans' => $plans, 'teams' => $teams]);
+
+    }
+
+   // Staff expenses
+   public function expenses()
+   {
+       $pageConfigs = ['layoutWidth' => 'full'];
+       return view('/staff/expenses', ['pageConfigs' => $pageConfigs]);
+   }
+
+   // Add Expenses
+   public function add_expenses(Request $request){
+
+
+       $expenses = new Expenses();
+
+       $this->validate($request, [
+          'date' => ['required'],
+          'type' => ['required'],
+          'salary' => ['required'],
+          'attachment' => ['required']
+       ]);
+
+       $oldId = $request->oldId;
+
+
+       if ($oldId !== null){
+           $expenses = Expenses::where('id', '=', $oldId)->first();
+
+           $attachment = Expenses::fileUpdated($request, $expenses);
+           $expenses->user_id = Auth::id();
+           $expenses->date = $request->date;
+           $expenses->type = $request->type;
+           $expenses->salary = $request->salary;
+           $expenses->attachment = $attachment;
+           $expenses->comment = $request->comment;
+           $expenses->update();
+
+       }else{
+           $attachment = Expenses::fileUpload($request);
+           $expenses->user_id = Auth::id();
+           $expenses->date = $request->date;
+           $expenses->type = $request->type;
+           $expenses->salary = $request->salary;
+           $expenses->attachment = $attachment;
+           $expenses->comment = $request->comment;
+
+           $expenses->save();
+       }
+
+
+       return response()->json([
+          'message' => 'Expenses save successfully!'
+       ]);
+
+   }
+
+
+   public function query_expenses(){
+       $expenses = DB::table('expense')->where('user_id', '=', Auth::id())->get()->toArray();
+       $expenses = json_encode($expenses);
+       $expenses =  '{ "data":'.$expenses."}";
+       return $expenses;
+   }
+
+   // Delete Expenses
+   public function expenses_delete(Request $request){
+       $expenses = Expenses::where('id', '=', $request->id)->first();
+       $attachemt = $expenses->attachment;
+       $folderPath = 'images/expenses/' . $attachemt;
+       if (file_exists($folderPath)){
+           @unlink($folderPath);
+       }
+       $expenses->delete();
+       return $expenses;
+   }
+
+   // Edit Expenses
+   public function expenses_edit($id){
+       $expenses = DB::table('expense')->where('id', '=', $id)->first();
+       return response()->json([
+          'expenses' => $expenses,
+       ]);
+   }
+
+
+   // Download File
+   public function expenses_download($request){
+       $folderPath = public_path('images/expenses/' . $request);
+       return \Response::download($folderPath);
+   }
+
+
+
+   // Staff attendance
+   public function attendance()
+   {
+       $pageConfigs = ['layoutWidth' => 'full'];
+       return view('/staff/attendance', ['pageConfigs' => $pageConfigs]);
+   }
+}

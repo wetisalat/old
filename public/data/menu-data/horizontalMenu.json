@@ -1,0 +1,58 @@
+{
+  "menu": [
+    {
+      "url": "dashboard",
+      "name": "Dashboards",
+      "icon": "home",
+      "slug": "dashboard"
+    },
+    {
+      "name": "staff",
+      "url": "staff",
+      "icon": "user",
+      "slug": "staff-list"
+    },
+    {
+      "url": "todo",
+      "name": "Todo",
+      "icon": "check-square",
+      "slug": "todo"
+    },
+    {
+      "url": "expenses",
+      "name": "Expenses",
+      "icon": "dollar-sign",
+      "slug": "expenses"
+    },
+    {
+      "name": "Schedule",
+      "url": "schedule",
+      "icon": "clock",
+      "slug": "schedule"
+    },
+    {
+      "name": "Request",
+      "url": "request",
+      "icon": "coffee",
+      "slug": "request"
+    },
+    {
+      "url": "attendance",
+      "name": "Attendance",
+      "icon": "watch",
+      "slug": "attendance"
+    },
+    {
+      "url": "payroll",
+      "name": "Payroll",
+      "icon": "bar-chart-2",
+      "slug": "payroll"
+    },
+    {
+      "url": "analyse",
+      "name": "analyse",
+      "icon": "activity",
+      "slug": "analyse"
+    }
+  ]
+}

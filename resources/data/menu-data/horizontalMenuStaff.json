@@ -1,0 +1,77 @@
+{
+    "menu": [
+        {
+            "id": 0,
+            "url": "dashboard",
+            "name": "Dashboards",
+            "icon": "home",
+            "slug": "dashboard"
+        },
+        {
+            "id": 0,
+            "url": "todo",
+            "name": "Todo",
+            "icon": "check-square",
+            "slug": "todo"
+        },
+        {
+            "id": 0,
+            "url": "staff/schedule",
+            "name": "Schedule",
+            "icon": "calendar",
+            "slug": "staff-schedule"
+        },
+        {
+            "id": 0,
+            "url": "staff/leave",
+            "name": "Leave",
+            "icon": "compass",
+            "slug": "staff-leave"
+        },
+        {
+            "id": 0,
+            "url": "staff/attendance",
+            "name": "Attendance",
+            "icon": "watch",
+            "slug": "attendance"
+        },
+        {
+            "id": 0,
+            "url": "staff/expenses",
+            "name": "Expenses",
+            "icon": "dollar-sign",
+            "slug": "expenses"
+        },
+        {
+            "name": "Profile",
+            "icon": "user",
+            "slug": "profile",
+            "submenu": [
+                {
+                "url": "/view/account",
+                "name": "Account",
+                "icon": "circle",
+                "slug": "staff-user-view-account"
+                },
+                {
+                "url": "/view/salary",
+                "name": "Salary",
+                "icon": "circle",
+                "slug": "staff-user-view-salary"
+                },
+                {
+                "url": "/view/documents",
+                "name": "Document",
+                "icon": "circle",
+                "slug": "staff-user-view-documents"
+                },
+                {
+                "url": "/view/connections",
+                "name": "Connections",
+                "icon": "circle",
+                "slug": "staff-user-view-connections"
+                }
+            ]
+        }
+    ]
+}

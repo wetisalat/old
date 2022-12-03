@@ -1,0 +1,9 @@
+@media (max-width: 470px) {
+  .attendance-list-wrapper .attendance_status {
+    margin-top: 1rem;
+    width: 100%;
+  }
+  .attendance-list-wrapper .attendance_status select {
+    margin-left: 0 !important;
+  }
+}

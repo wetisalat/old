@@ -1,0 +1,169 @@
+.attendance-preview .attendance-padding,
+.attendance-edit .attendance-padding,
+.attendance-add .attendance-padding {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+.attendance-preview .table th:first-child,
+.attendance-preview .table td:first-child,
+.attendance-edit .table th:first-child,
+.attendance-edit .table td:first-child,
+.attendance-add .table th:first-child,
+.attendance-add .table td:first-child {
+  padding-left: 2.5rem;
+}
+.attendance-preview .logo-wrapper,
+.attendance-edit .logo-wrapper,
+.attendance-add .logo-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.9rem;
+}
+.attendance-preview .logo-wrapper .attendance-logo,
+.attendance-edit .logo-wrapper .attendance-logo,
+.attendance-add .logo-wrapper .attendance-logo {
+  font-size: 2.142rem;
+  font-weight: bold;
+  letter-spacing: -0.54px;
+  margin-left: 1rem;
+  margin-bottom: 0;
+}
+.attendance-preview .attendance-title,
+.attendance-edit .attendance-title,
+.attendance-add .attendance-title {
+  font-size: 1.285rem;
+  margin-bottom: 1rem;
+}
+.attendance-preview .attendance-title .attendance-number,
+.attendance-edit .attendance-title .attendance-number,
+.attendance-add .attendance-title .attendance-number {
+  font-weight: 600;
+}
+.attendance-preview .attendance-date-wrapper,
+.attendance-edit .attendance-date-wrapper,
+.attendance-add .attendance-date-wrapper {
+  display: flex;
+  align-items: center;
+}
+.attendance-preview .attendance-date-wrapper:not(:last-of-type),
+.attendance-edit .attendance-date-wrapper:not(:last-of-type),
+.attendance-add .attendance-date-wrapper:not(:last-of-type) {
+  margin-bottom: 0.5rem;
+}
+.attendance-preview .attendance-date-wrapper .attendance-date-title,
+.attendance-edit .attendance-date-wrapper .attendance-date-title,
+.attendance-add .attendance-date-wrapper .attendance-date-title {
+  width: 7rem;
+  margin-bottom: 0;
+}
+.attendance-preview .attendance-date-wrapper .attendance-date,
+.attendance-edit .attendance-date-wrapper .attendance-date,
+.attendance-add .attendance-date-wrapper .attendance-date {
+  margin-left: 0.5rem;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+.attendance-preview .attendance-spacing,
+.attendance-edit .attendance-spacing,
+.attendance-add .attendance-spacing {
+  margin: 1.45rem 0;
+}
+.attendance-preview .attendance-number-date .title,
+.attendance-edit .attendance-number-date .title,
+.attendance-add .attendance-number-date .title {
+  width: 115px;
+}
+.attendance-preview .attendance-total-wrapper,
+.attendance-edit .attendance-total-wrapper,
+.attendance-add .attendance-total-wrapper {
+  width: 100%;
+  max-width: 12rem;
+}
+.attendance-preview .attendance-total-wrapper .attendance-total-item,
+.attendance-edit .attendance-total-wrapper .attendance-total-item,
+.attendance-add .attendance-total-wrapper .attendance-total-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.attendance-preview .attendance-total-wrapper .attendance-total-item .attendance-total-title,
+.attendance-edit .attendance-total-wrapper .attendance-total-item .attendance-total-title,
+.attendance-add .attendance-total-wrapper .attendance-total-item .attendance-total-title {
+  margin-bottom: 0.35rem;
+}
+.attendance-preview .attendance-total-wrapper .attendance-total-item .attendance-total-amount,
+.attendance-edit .attendance-total-wrapper .attendance-total-item .attendance-total-amount,
+.attendance-add .attendance-total-wrapper .attendance-total-item .attendance-total-amount {
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+@media (min-width: 768px) {
+  .attendance-preview .attendance-title,
+.attendance-edit .attendance-title,
+.attendance-add .attendance-title {
+    text-align: right;
+    margin-bottom: 3rem;
+  }
+}
+
+.attendance-edit .attendance-preview-card .attendance-title,
+.attendance-add .attendance-preview-card .attendance-title {
+  text-align: left;
+  margin-right: 3.5rem;
+  margin-bottom: 0;
+}
+.attendance-edit .attendance-preview-card .attendance-edit-input,
+.attendance-edit .attendance-preview-card .attendance-edit-input-group,
+.attendance-add .attendance-preview-card .attendance-edit-input,
+.attendance-add .attendance-preview-card .attendance-edit-input-group {
+  max-width: 11.21rem;
+}
+.attendance-edit .attendance-preview-card .attendance-product-details,
+.attendance-add .attendance-preview-card .attendance-product-details {
+  background-color: #fcfcfc;
+  padding: 3.75rem 3.45rem 2.3rem 3.45rem;
+}
+.attendance-edit .attendance-preview-card .attendance-product-details .product-details-border,
+.attendance-add .attendance-preview-card .attendance-product-details .product-details-border {
+  border: 1px solid #ebe9f1;
+  border-radius: 0.357rem;
+}
+.attendance-edit .attendance-preview-card .attendance-to-title,
+.attendance-add .attendance-preview-card .attendance-to-title {
+  margin-bottom: 1.9rem;
+}
+.attendance-edit .attendance-preview-card .col-title,
+.attendance-add .attendance-preview-card .col-title {
+  position: absolute;
+  top: -1.75rem;
+}
+.attendance-edit .attendance-preview-card .item-options-menu,
+.attendance-add .attendance-preview-card .item-options-menu {
+  min-width: 20rem;
+}
+.attendance-edit .attendance-preview-card .repeater-wrapper:not(:last-child),
+.attendance-add .attendance-preview-card .repeater-wrapper:not(:last-child) {
+  margin-bottom: 3rem;
+}
+.attendance-edit .attendance-preview-card .attendance-calculations .total-amt-title,
+.attendance-add .attendance-preview-card .attendance-calculations .total-amt-title {
+  width: 100px;
+}
+@media (max-width: 769px) {
+  .attendance-edit .attendance-preview-card .attendance-title,
+.attendance-add .attendance-preview-card .attendance-title {
+    margin-right: 0;
+    width: 115px;
+  }
+  .attendance-edit .attendance-preview-card .attendance-edit-input,
+.attendance-add .attendance-preview-card .attendance-edit-input {
+    max-width: 100%;
+  }
+}
+@media (max-width: 992px) {
+  .attendance-edit .col-title,
+.attendance-add .col-title {
+    position: unset !important;
+    top: -1.5rem !important;
+  }
+}

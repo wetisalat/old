@@ -1,0 +1,87 @@
+{
+    "menu": [
+        {
+            "id": 0,
+            "url": "dashboard",
+            "name": "Dashboards",
+            "icon": "home",
+            "slug": ""
+        },
+        {
+            "id": 0,
+            "url": "chat",
+            "name": "Chat",
+            "badge": "2",
+            "badgeClass": "badge badge-light-warning rounded-pill ms-auto me-1",
+            "icon": "message-square",
+            "slug": "chat"
+        },
+        {
+            "id": 3,
+            "navheader": "Menu",
+            "slug": ""
+        },
+        {
+            "id": 0,
+            "url": "todo",
+            "name": "Todo",
+            "icon": "check-square",
+            "slug": "app-todo"
+        },
+        {
+            "id": 0,
+            "url": "staff/schedule",
+            "name": "Schedule",
+            "icon": "calendar",
+            "slug": "schedule"
+        },
+        {
+            "id": 0,
+            "url": "staff/leave",
+            "name": "Leave",
+            "icon": "compass",
+            "slug": "leave"
+        },
+        {
+            "id": 0,
+            "url": "staff/attendance",
+            "name": "Attendance",
+            "icon": "watch",
+            "slug": "attendance"
+        },
+        {
+            "id": 0,
+            "url": "staff/expenses",
+            "name": "Expenses",
+            "icon": "dollar-sign",
+            "slug": "expenses"
+        },
+        {
+            "name": "Profile",
+            "icon": "user",
+            "slug": "",
+            "submenu": [
+                {
+                "url": "staff/view/account",
+                "name": "Account",
+                "slug": "staff-user-view-account"
+                },
+                {
+                "url": "staff/view/salary",
+                "name": "Salary",
+                "slug": "staff-user-view-salary"
+                },
+                {
+                "url": "staff/view/documents",
+                "name": "Document",
+                "slug": "staff-user-view-documents"
+                },
+                {
+                "url": "staff/view/connections",
+                "name": "Connections",
+                "slug": "staff-user-view-connections"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,52 @@
+{
+    "menu": [
+      {
+        "url": "dashboard",
+        "name": "Dashboards",
+        "icon": "home",
+        "slug": "dashboard"
+      },
+      {
+          "url": "admin/customers",
+          "name": "Customers",
+          "icon": "users",
+          "slug": "customers"
+        },
+        {
+          "url": "admin/plans",
+          "name": "Plans",
+          "icon": "dollar-sign",
+          "slug": "plans"
+        },
+        {
+          "url": "admin/coupons",
+          "name": "Coupons",
+          "icon": "gift",
+          "slug": "coupons"
+        },
+        {
+          "url": "admin/subscriptions",
+          "name": "subscriptions",
+          "icon": "file-text",
+          "slug": "subscriptions"
+        },
+        {
+          "url": "admin/subscriptions-cancel",
+          "name": "subscriptions-cancel",
+          "icon": "frown",
+          "slug": "subscriptions-cancel"
+        },
+        {
+          "url": "admin/leave",
+          "name": "Leave",
+          "icon": "watch",
+          "slug": "admin-leave"
+        },
+        {
+          "url": "admin/lunch",
+          "name": "Lunch",
+          "icon": "coffee",
+          "slug": "admin-lunch"
+        }
+      ]
+    }
